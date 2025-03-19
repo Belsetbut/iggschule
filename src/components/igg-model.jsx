@@ -10,7 +10,7 @@ const SketchupModel = () => {
   const modelRef = useRef();
 
   // Define the center position of the model
-  const centerPosition = [-420, -100, 100];
+  const centerPosition = [-440, -100, 100];
 
   scene.traverse((child) => {
     if (child.isMesh) {
@@ -39,9 +39,45 @@ const CameraController = () => {
   const orbitControlsRef = useRef();
 
   // Center point to orbit around - match with model center
-  const centerPoint = [-420, 0, 100];
+  const centerPoint = [0, -100, 0]; // Updated to match model position
 
-  // No more auto-rotation
+  // Zoom configuration - easy to adjust
+  const zoomConfig = {
+    minDistance: 100,  // Minimum zoom (closer to object)
+    maxDistance: 500, // Maximum zoom (further from object)
+    zoomSpeed: 1.2    // How fast zooming occurs
+  };
+
+  // Update controls on each frame to prevent clipping
+  useFrame(() => {
+    if (orbitControlsRef.current) {
+      // Ensure camera doesn't clip through the building
+      const currentPos = orbitControlsRef.current.object.position;
+      const buildingPos = centerPoint;
+      
+      // Calculate distance to building center
+      const distanceToBuilding = Math.sqrt(
+        Math.pow(currentPos.x - buildingPos[0], 2) +
+        Math.pow(currentPos.y - buildingPos[1], 2) +
+        Math.pow(currentPos.z - buildingPos[2], 2)
+      );
+      
+      // If too close to building, move camera back
+      if (distanceToBuilding < zoomConfig.minDistance) {
+        // Normalize direction vector
+        const dirX = (currentPos.x - buildingPos[0]) / distanceToBuilding;
+        const dirY = (currentPos.y - buildingPos[1]) / distanceToBuilding;
+        const dirZ = (currentPos.z - buildingPos[2]) / distanceToBuilding;
+        
+        // Set position at minimum distance
+        orbitControlsRef.current.object.position.set(
+          buildingPos[0] + dirX * zoomConfig.minDistance,
+          buildingPos[1] + dirY * zoomConfig.minDistance,
+          buildingPos[2] + dirZ * zoomConfig.minDistance
+        );
+      }
+    }
+  });
 
   return (
     <OrbitControls
@@ -49,14 +85,14 @@ const CameraController = () => {
       enableZoom={true}
       enablePan={true}
       target={centerPoint}
-      maxDistance={200} // Increased from 100
-      minDistance={50} // Increased from 1
+      maxDistance={zoomConfig.maxDistance}
+      minDistance={zoomConfig.minDistance}
+      zoomSpeed={zoomConfig.zoomSpeed}
       minPolarAngle={Math.PI / 6}
       maxPolarAngle={Math.PI / 2.2}
       enableDamping={true}
       dampingFactor={0.05}
       rotateSpeed={0.5}
-      // Removed onStart and onEnd handlers
     />
   );
 };
