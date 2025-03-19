@@ -43,9 +43,9 @@ const CameraController = () => {
 
   // Zoom configuration - easy to adjust
   const zoomConfig = {
-    minDistance: 100,  // Minimum zoom (closer to object)
+    minDistance: 100, // Minimum zoom (closer to object)
     maxDistance: 500, // Maximum zoom (further from object)
-    zoomSpeed: 1.2    // How fast zooming occurs
+    zoomSpeed: 1.2, // How fast zooming occurs
   };
 
   // Update controls on each frame to prevent clipping
@@ -54,21 +54,21 @@ const CameraController = () => {
       // Ensure camera doesn't clip through the building
       const currentPos = orbitControlsRef.current.object.position;
       const buildingPos = centerPoint;
-      
+
       // Calculate distance to building center
       const distanceToBuilding = Math.sqrt(
         Math.pow(currentPos.x - buildingPos[0], 2) +
-        Math.pow(currentPos.y - buildingPos[1], 2) +
-        Math.pow(currentPos.z - buildingPos[2], 2)
+          Math.pow(currentPos.y - buildingPos[1], 2) +
+          Math.pow(currentPos.z - buildingPos[2], 2)
       );
-      
+
       // If too close to building, move camera back
       if (distanceToBuilding < zoomConfig.minDistance) {
         // Normalize direction vector
         const dirX = (currentPos.x - buildingPos[0]) / distanceToBuilding;
         const dirY = (currentPos.y - buildingPos[1]) / distanceToBuilding;
         const dirZ = (currentPos.z - buildingPos[2]) / distanceToBuilding;
-        
+
         // Set position at minimum distance
         orbitControlsRef.current.object.position.set(
           buildingPos[0] + dirX * zoomConfig.minDistance,
