@@ -38,34 +38,10 @@ const SketchupModel = () => {
 const CameraController = () => {
   const orbitControlsRef = useRef();
 
-  // Center point to orbit around
-  const centerPoint = [0, 0, 0];
+  // Center point to orbit around - match with model center
+  const centerPoint = [-420, 0, 100];
 
-  // Use useFrame to update on each frame
-  useFrame(({ clock }) => {
-    if (orbitControlsRef.current) {
-      // Get the elapsed time
-      const elapsedTime = clock.getElapsedTime();
-
-      // Calculate new camera position in a circular path
-      // Only rotate horizontally, not vertically to avoid going under
-      const radius = 30;
-      const speed = 0.1;
-
-      // Update the orbit controls target
-      orbitControlsRef.current.target.set(
-        centerPoint[0] + Math.sin(elapsedTime * speed) * radius,
-        centerPoint[1],
-        centerPoint[2] + Math.cos(elapsedTime * speed) * radius
-      );
-
-      // Ensure minimum height to prevent going under the building
-      const minHeight = 10;
-      if (orbitControlsRef.current.object.position.y < minHeight) {
-        orbitControlsRef.current.object.position.y = minHeight;
-      }
-    }
-  });
+  // No more auto-rotation
 
   return (
     <OrbitControls
@@ -73,11 +49,14 @@ const CameraController = () => {
       enableZoom={true}
       enablePan={true}
       target={centerPoint}
-      maxDistance={100}
-      minDistance={1}
-      // Limit vertical rotation to prevent going under
-      minPolarAngle={Math.PI / 6} // Minimum angle (from top)
-      maxPolarAngle={Math.PI / 2.2} // Maximum angle (prevent going below horizon)
+      maxDistance={200} // Increased from 100
+      minDistance={50} // Increased from 1
+      minPolarAngle={Math.PI / 6}
+      maxPolarAngle={Math.PI / 2.2}
+      enableDamping={true}
+      dampingFactor={0.05}
+      rotateSpeed={0.5}
+      // Removed onStart and onEnd handlers
     />
   );
 };
@@ -86,7 +65,7 @@ export default function Scene() {
   return (
     <div className="w-full h-screen">
       <Canvas
-        camera={{ position: [5, 15, 5], fov: 75, near: 0.1, far: 2000 }}
+        camera={{ position: [-420, 50, 200], fov: 75, near: 0.1, far: 2000 }}
         gl={{ antialias: true, alpha: false }}>
         <color attach="background" args={["#000000"]} />
         <ambientLight intensity={0.8} />
