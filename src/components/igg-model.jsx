@@ -83,7 +83,7 @@ const CameraController = () => {
     <OrbitControls
       ref={orbitControlsRef}
       enableZoom={true}
-      enablePan={true}
+      enablePan={false}
       target={centerPoint}
       maxDistance={zoomConfig.maxDistance}
       minDistance={zoomConfig.minDistance}
